@@ -8,8 +8,8 @@ for d in */; do
       if [ $file = "frames" ]; then
       else
         # just for testing purposes:
-        # ThermoViewer -i $file -cp iron -expa frames/ -exfn "${d//\//}_$i" -exfo jpg -exsf 12 -exef 12 -c
-        ThermoViewer -i $file -cp iron -expa frames/ -exfn "${d//\//}_$i" -exfo jpg -c
+        # ThermoViewer -i $file -cp gray -expa frames/ -exfn "${d//\//}_$i" -exfo jpg -exsf 12 -exef 12 -c
+        ThermoViewer -i $file -cp gray -expa frames/ -exfn "${d//\//}_$i" -exfo jpg -c
       fi
       ((++i))
     done
