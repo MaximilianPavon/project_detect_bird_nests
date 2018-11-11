@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
@@ -141,4 +140,3 @@ if __name__ == '__main__':
     pred = model.predict_generator(test_generator, verbose=1)
 
     predicted_class_indices = np.argmax(pred, axis=1)
-
