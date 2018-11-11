@@ -1,5 +1,10 @@
+import itertools
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.utils import class_weight
+from sklearn import metrics
 
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
@@ -31,6 +36,66 @@ def split_dataframe(df, train_p, val_p, random_state=200):
     return df_train, df_val, df_test
 
 
+def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    # print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+    plt.savefig(title + '.png', dpi=300, bbox_inches='tight')
+    plt.clf()
+    return
+
+
+def plot_history(history):
+    # list all data in history
+    print(history.history.keys())
+
+    # summarize history for accuracy
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    plt.savefig('acc.png', dpi=300, bbox_inches='tight')
+    plt.clf()
+
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    plt.savefig('loss.png', dpi=300, bbox_inches='tight')
+    plt.clf()
+    return
+
 if __name__ == '__main__':
     path_to_csv = 'nests.csv'
     path_to_img = 'data/Max_20Flights2017/frames/'
@@ -43,6 +108,9 @@ if __name__ == '__main__':
     batch_size = 32
 
     df = pd.read_csv(path_to_csv)
+    class_weights = class_weight.compute_class_weight('balanced',
+                                                      np.unique(df['nest']),
+                                                      df['nest'])
     # split data frame into train, validation and test
     df_train, df_val, df_test = split_dataframe(df, train_p, val_p)
     del df
@@ -146,23 +214,39 @@ if __name__ == '__main__':
     STEP_SIZE_TRAIN = train_generator.n // train_generator.batch_size
     STEP_SIZE_VALID = val_generator.n // val_generator.batch_size
 
-    model.fit_generator(generator=train_generator,
+    history = model.fit_generator(generator=train_generator,
                         steps_per_epoch=STEP_SIZE_TRAIN,
                         validation_data=val_generator,
                         validation_steps=STEP_SIZE_VALID,
-                        epochs=10,
-                        verbose=1
+                        epochs=200,
+                        verbose=1,
+                        class_weight=class_weights
                         )
+
+    # plot history
+    plot_history(history)
 
     # evaluate the model
     score = model.evaluate_generator(generator=val_generator)
 
     # print loss and accuracy
-    print('Test loss:', score[0])
-    print('Test accuracy:', score[1])
+    print('Val loss:', score[0])
+    print('Val accuracy:', score[1])
 
     # Predict the output
     test_generator.reset()
     pred = model.predict_generator(test_generator, verbose=1)
 
     predicted_class_indices = np.argmax(pred, axis=1)
+
+    # Compute confusion matrix
+    cnf_matrix = metrics.confusion_matrix(df_test['nest'], predicted_class_indices)
+    plot_confusion_matrix(cnf_matrix, classes=[0,1], title='Confusion matrix, without normalization')
+
+    test_acc = metrics.accuracy_score(df_test['nest'], predicted_class_indices)
+    test_precision = metrics.precision_score(df_test['nest'], predicted_class_indices, average='binary')
+    test_recall = metrics.recall_score(df_test['nest'], predicted_class_indices, average='binary')
+    test_f1 = metrics.f1_score(df_test['nest'], predicted_class_indices, average='binary')
+
+    print('Test accuracy:', test_acc)
+    print(metrics.classification_report(df_test['nest'], predicted_class_indices))
