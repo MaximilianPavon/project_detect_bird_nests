@@ -71,7 +71,7 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     return
 
 
-def plot_history(history):
+def plot_history(history, n_epochs):
     # list all data in history
     print(history.history.keys())
 
@@ -82,7 +82,7 @@ def plot_history(history):
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
-    plt.savefig('acc.png', dpi=300, bbox_inches='tight')
+    plt.savefig('acc_' + str(n_epochs) + '.png', dpi=300, bbox_inches='tight')
     plt.clf()
 
     # summarize history for loss
@@ -92,9 +92,10 @@ def plot_history(history):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
-    plt.savefig('loss.png', dpi=300, bbox_inches='tight')
+    plt.savefig('loss_' + str(n_epochs) + '.png', dpi=300, bbox_inches='tight')
     plt.clf()
     return
+
 
 if __name__ == '__main__':
     path_to_csv = 'nests.csv'
@@ -106,11 +107,12 @@ if __name__ == '__main__':
     color_mode = 'grayscale'
     class_mode = 'categorical'
     batch_size = 32
+    n_epochs = 200
 
     df = pd.read_csv(path_to_csv)
     class_weights = class_weight.compute_class_weight('balanced',
-                                                      np.unique(df['nest']),
-                                                      df['nest'])
+                                                      np.unique(df[label_col]),
+                                                      df[label_col])
     # split data frame into train, validation and test
     df_train, df_val, df_test = split_dataframe(df, train_p, val_p)
     del df
@@ -215,16 +217,16 @@ if __name__ == '__main__':
     STEP_SIZE_VALID = val_generator.n // val_generator.batch_size
 
     history = model.fit_generator(generator=train_generator,
-                        steps_per_epoch=STEP_SIZE_TRAIN,
-                        validation_data=val_generator,
-                        validation_steps=STEP_SIZE_VALID,
-                        epochs=200,
-                        verbose=1,
-                        class_weight=class_weights
-                        )
+                                  steps_per_epoch=STEP_SIZE_TRAIN,
+                                  validation_data=val_generator,
+                                  validation_steps=STEP_SIZE_VALID,
+                                  epochs=n_epochs,
+                                  verbose=1,
+                                  class_weight=class_weights
+                                  )
 
     # plot history
-    plot_history(history)
+    plot_history(history, n_epochs)
 
     # evaluate the model
     score = model.evaluate_generator(generator=val_generator)
@@ -240,13 +242,13 @@ if __name__ == '__main__':
     predicted_class_indices = np.argmax(pred, axis=1)
 
     # Compute confusion matrix
-    cnf_matrix = metrics.confusion_matrix(df_test['nest'], predicted_class_indices)
-    plot_confusion_matrix(cnf_matrix, classes=[0,1], title='Confusion matrix, without normalization')
+    cnf_matrix = metrics.confusion_matrix(df_test[label_col], predicted_class_indices)
+    plot_confusion_matrix(cnf_matrix, classes=[0, 1], title='Confusion matrix, without normalization' + str(n_epochs))
 
-    test_acc = metrics.accuracy_score(df_test['nest'], predicted_class_indices)
-    test_precision = metrics.precision_score(df_test['nest'], predicted_class_indices, average='binary')
-    test_recall = metrics.recall_score(df_test['nest'], predicted_class_indices, average='binary')
-    test_f1 = metrics.f1_score(df_test['nest'], predicted_class_indices, average='binary')
+    test_acc = metrics.accuracy_score(df_test[label_col], predicted_class_indices)
+    test_precision = metrics.precision_score(df_test[label_col], predicted_class_indices, average='binary')
+    test_recall = metrics.recall_score(df_test[label_col], predicted_class_indices, average='binary')
+    test_f1 = metrics.f1_score(df_test[label_col], predicted_class_indices, average='binary')
 
     print('Test accuracy:', test_acc)
-    print(metrics.classification_report(df_test['nest'], predicted_class_indices))
+    print(metrics.classification_report(df_test[label_col], predicted_class_indices))
