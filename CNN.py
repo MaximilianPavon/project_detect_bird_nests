@@ -1,13 +1,15 @@
 import pandas as pd
+import numpy as np
 
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten, Dropout, BatchNormalization
 from keras.layers import Conv2D, MaxPooling2D
+from keras.utils import plot_model
 from keras import regularizers, optimizers
 
 
-def split_dataframe(df, train_p, val_p,  random_state=200):
+def split_dataframe(df, train_p, val_p, random_state=200):
     '''
     split data frame into train, validation and test
     '''
@@ -87,32 +89,56 @@ if __name__ == '__main__':
     )
 
     # build model
-
     model = Sequential(name='CNN')
-    model.add(Conv2D(32, (3, 3), padding='same',
-                     input_shape=img_size + (1,), activation='relu'))
+    model.add(Conv2D(
+        filters=8,
+        kernel_size=(5, 5),
+        padding='same',
+        strides=2,
+        activation='relu',
+        input_shape=img_size + (1,)
+    ))
     model.add(BatchNormalization())
 
-    model.add(Conv2D(32, (3, 3), activation='relu'))
+    model.add(Conv2D(
+        filters=8,
+        kernel_size=(5, 5),
+        padding='same',
+        strides=2,
+        activation='relu',
+    ))
     model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
-    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(
+        filters=8,
+        kernel_size=(5, 5),
+        padding='same',
+        strides=2,
+        activation='relu',
+    ))
     model.add(BatchNormalization())
-    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(
+        filters=8,
+        kernel_size=(5, 5),
+        padding='same',
+        strides=2,
+        activation='relu',
+    ))
     model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
     model.add(Flatten())
-    model.add(Dense(512))
+    model.add(Dense(128))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
     model.add(Dense(2, activation='softmax'))
 
     model.summary()
+    plot_model(model, to_file='cnn.png', show_shapes=True)
 
     model.compile(optimizers.rmsprop(lr=0.0001, decay=1e-6), loss="categorical_crossentropy", metrics=["accuracy"])
 
