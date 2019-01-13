@@ -1,0 +1,16 @@
+name: birds
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6
+  - jupyterlab
+  - tqdm
+  - matplotlib
+  - numpy
+  - pandas
+  - pillow
+  - pydot
+  - scikit-learn
+  - keras
+  - tensorflow
