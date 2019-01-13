@@ -2,6 +2,7 @@ from my_functions import split_dataframe, plot_confusion_matrix, plot_history
 
 import pandas as pd
 import numpy as np
+import datetime
 
 from sklearn.utils import class_weight
 from sklearn import metrics
@@ -12,6 +13,7 @@ from keras.layers import Dense, Activation, Flatten, Dropout, BatchNormalization
 from keras.layers import Conv2D, MaxPooling2D
 from keras.utils import plot_model
 from keras import regularizers, optimizers
+from keras.callbacks import ModelCheckpoint, TensorBoard
 
 
 if __name__ == '__main__':
@@ -133,14 +135,44 @@ if __name__ == '__main__':
     STEP_SIZE_TRAIN = train_generator.n // train_generator.batch_size
     STEP_SIZE_VALID = val_generator.n // val_generator.batch_size
 
+    # folder extension for bookkeeping
+    datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    config_string = datetime_string
+
+    tbCallBack = TensorBoard(
+        log_dir='../3_runs/logging/TBlogs/' + config_string,
+        histogram_freq=10,
+        batch_size=batch_size,
+        write_graph=True,
+        write_grads=False,
+        write_images=False,
+        embeddings_freq=0,
+        embeddings_layer_names=None,
+        embeddings_metadata=None,
+        embeddings_data=None,
+        update_freq='epoch',
+    )
+
+    model_checkpoint = ModelCheckpoint(
+        filepath='../3_runs/logging/checkpoints/' + config_string + '_{epoch:04d}-{val_loss:.2f}.hdf5',
+        verbose=1,
+        save_best_only=True,
+        mode='min',
+        period=1,
+    )
+
+    callbacks_list = [model_checkpoint, tbCallBack]
+
     history = model.fit_generator(generator=train_generator,
                                   steps_per_epoch=STEP_SIZE_TRAIN,
                                   validation_data=val_generator,
                                   validation_steps=STEP_SIZE_VALID,
                                   epochs=n_epochs,
                                   verbose=1,
-                                  class_weight=class_weights
+                                  class_weight=class_weights,
+                                  callbacks=callbacks_list,
                                   )
+    model.save_weights('../3_runs/logging/weights/' + config_string + '.h5')
 
     # plot history
     plot_history(history, n_epochs)
