@@ -3,6 +3,6 @@
 *.pdf
 
 #Folder
-
+__pycache__/
 1_data/
 .ipynb_checkpoints/
