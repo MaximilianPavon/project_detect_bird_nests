@@ -3,6 +3,7 @@ from my_functions import split_dataframe, plot_confusion_matrix, plot_history
 import pandas as pd
 import numpy as np
 import datetime
+import argparse
 
 from sklearn.utils import class_weight
 from sklearn import metrics
@@ -17,6 +18,11 @@ from keras.callbacks import ModelCheckpoint, TensorBoard
 
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", "--weights", help="Load h5 model trained weights")
+    args = parser.parse_args()
+
     path_to_csv = '../1_data/nests.csv'
     path_to_img = '../1_data/Max_20Flights2017/frames/'
     train_p, val_p = 0.8, 0.1
@@ -163,16 +169,20 @@ if __name__ == '__main__':
 
     callbacks_list = [model_checkpoint, tbCallBack]
 
-    history = model.fit_generator(generator=train_generator,
-                                  steps_per_epoch=STEP_SIZE_TRAIN,
-                                  validation_data=val_generator,
-                                  validation_steps=STEP_SIZE_VALID,
-                                  epochs=n_epochs,
-                                  verbose=1,
-                                  class_weight=class_weights,
-                                  callbacks=callbacks_list,
-                                  )
-    model.save_weights('../3_runs/logging/weights/' + config_string + '.h5')
+    if args.weights:
+        model = model.load_weights(args.weights)
+    else:
+        history = model.fit_generator(generator=train_generator,
+                                      steps_per_epoch=STEP_SIZE_TRAIN,
+                                      validation_data=val_generator,
+                                      validation_steps=STEP_SIZE_VALID,
+                                      epochs=n_epochs,
+                                      verbose=1,
+                                      class_weight=class_weights,
+                                      callbacks=callbacks_list,
+                                      )
+        model.save_weights('../3_runs/logging/weights/' + config_string + '.h5')
+        print('training done')
 
     # plot history
     plot_history(history, n_epochs)
