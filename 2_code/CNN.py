@@ -1,4 +1,5 @@
 from my_functions import split_dataframe, plot_confusion_matrix, plot_history
+from my_classes import TensorBoardWrapper
 
 import pandas as pd
 import numpy as np
@@ -14,7 +15,7 @@ from keras.layers import Dense, Activation, Flatten, Dropout, BatchNormalization
 from keras.layers import Conv2D, MaxPooling2D
 from keras.utils import plot_model
 from keras import regularizers, optimizers
-from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.callbacks import ModelCheckpoint
 
 
 if __name__ == '__main__':
@@ -145,7 +146,10 @@ if __name__ == '__main__':
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     config_string = datetime_string
 
-    tbCallBack = TensorBoard(
+    # callbacks
+    tbCallBack = TensorBoardWrapper(
+        batch_gen=val_generator,
+        nb_steps=STEP_SIZE_VALID,
         log_dir='../3_runs/logging/TBlogs/' + config_string,
         histogram_freq=10,
         batch_size=batch_size,
