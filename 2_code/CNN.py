@@ -15,8 +15,8 @@ from keras import regularizers, optimizers
 
 
 if __name__ == '__main__':
-    path_to_csv = 'nests.csv'
-    path_to_img = 'data/Max_20Flights2017/frames/'
+    path_to_csv = '../1_data/nests.csv'
+    path_to_img = '../1_data/Max_20Flights2017/frames/'
     train_p, val_p = 0.8, 0.1
     index_col = 'files'
     label_col = 'nest'
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     model.add(Dense(2, activation='softmax'))
 
     model.summary()
-    plot_model(model, to_file='cnn.png', show_shapes=True)
+    plot_model(model, to_file='../3_runs/plots/cnn.png', show_shapes=True)
 
     model.compile(optimizers.rmsprop(lr=0.0001, decay=1e-6), loss="categorical_crossentropy", metrics=["accuracy"])
 
