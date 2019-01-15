@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import itertools
 import numpy as np
+import os
 
 
 def split_dataframe(df, train_p, val_p, random_state=200):
@@ -27,7 +28,7 @@ def split_dataframe(df, train_p, val_p, random_state=200):
     return df_train, df_val, df_test
 
 
-def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+def plot_confusion_matrix(cm, classes, path, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
@@ -57,12 +58,12 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
-    plt.savefig(title + '.png', dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(path, title + '.png'), dpi=300, bbox_inches='tight')
     plt.clf()
     return
 
 
-def plot_history(history, n_epochs):
+def plot_history(history, n_epochs, path):
     # list all data in history
     print(history.history.keys())
 
@@ -73,7 +74,7 @@ def plot_history(history, n_epochs):
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
-    plt.savefig('acc_' + str(n_epochs) + '.png', dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(path,'acc_' + str(n_epochs) + '.png'), dpi=300, bbox_inches='tight')
     plt.clf()
 
     # summarize history for loss
@@ -83,6 +84,6 @@ def plot_history(history, n_epochs):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
-    plt.savefig('loss_' + str(n_epochs) + '.png', dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(path,'loss_' + str(n_epochs) + '.png'), dpi=300, bbox_inches='tight')
     plt.clf()
     return

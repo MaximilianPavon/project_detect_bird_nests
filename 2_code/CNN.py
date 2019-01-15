@@ -190,7 +190,7 @@ if __name__ == '__main__':
         print('training done')
 
         # plot history
-        plot_history(history, n_epochs)
+        plot_history(history, n_epochs, path='../3_runs/plots/')
 
     # evaluate the model
     score = model.evaluate_generator(generator=val_generator, steps=STEP_SIZE_VALID)
@@ -207,7 +207,11 @@ if __name__ == '__main__':
 
     # Compute confusion matrix
     cnf_matrix = metrics.confusion_matrix(df_test[label_col], predicted_class_indices)
-    plot_confusion_matrix(cnf_matrix, classes=[0, 1], title='Confusion matrix, without normalization' + str(n_epochs))
+    plot_confusion_matrix(cnf_matrix, classes=[0, 1], path='../3_runs/plots/', normalize=False,
+                          title='Confusion matrix, without normalization' + str(n_epochs))
+
+    plot_confusion_matrix(cnf_matrix, classes=[0, 1], path='../3_runs/plots/', normalize=True,
+                          title='Confusion matrix, with normalization' + str(n_epochs))
 
     test_acc = metrics.accuracy_score(df_test[label_col], predicted_class_indices)
     test_precision = metrics.precision_score(df_test[label_col], predicted_class_indices, average='binary')
