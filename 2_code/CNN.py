@@ -188,11 +188,11 @@ if __name__ == '__main__':
         model.save_weights('../3_runs/logging/weights/' + config_string + '.h5')
         print('training done')
 
-    # plot history
-    plot_history(history, n_epochs)
+        # plot history
+        plot_history(history, n_epochs)
 
     # evaluate the model
-    score = model.evaluate_generator(generator=val_generator)
+    score = model.evaluate_generator(generator=val_generator, steps=STEP_SIZE_VALID)
 
     # print loss and accuracy
     print('Val loss:', score[0])
