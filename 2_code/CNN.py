@@ -16,12 +16,14 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.utils import plot_model
 from keras import regularizers, optimizers
 from keras.callbacks import ModelCheckpoint
+from keras.models import load_model
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-w", "--weights", help="Load h5 model trained weights")
+    parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)")
+    parser.add_argument("-m", "--model", help="Load a compiled model (.hdf5 file) saved by model.save(filepath)")
     args = parser.parse_args()
 
     path_to_csv = '../1_data/nests.csv'
@@ -148,6 +150,9 @@ if __name__ == '__main__':
 
     if args.weights:
         model = model.load_weights(args.weights)
+
+    elif args.model:
+        model = load_model(args.model)
 
     else:
         # callbacks
