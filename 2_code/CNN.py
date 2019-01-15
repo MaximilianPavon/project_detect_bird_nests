@@ -142,7 +142,8 @@ if __name__ == '__main__':
 
     # fitting the model
     STEP_SIZE_TRAIN = train_generator.n // train_generator.batch_size
-    STEP_SIZE_VALID = val_generator.n // val_generator.batch_size
+    STEP_SIZE_VALID = val_generator.n   // val_generator.batch_size
+    STEP_SIZE_TEST  = test_generator.n  // test_generator.batch_size
 
     # folder extension for bookkeeping
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -206,7 +207,7 @@ if __name__ == '__main__':
 
     # Predict the output
     test_generator.reset()
-    pred = model.predict_generator(test_generator, verbose=1)
+    pred = model.predict_generator(test_generator, verbose=1, steps=STEP_SIZE_TEST)
 
     predicted_class_indices = np.argmax(pred, axis=1)
 
