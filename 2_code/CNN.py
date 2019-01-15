@@ -146,36 +146,37 @@ if __name__ == '__main__':
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     config_string = datetime_string
 
-    # callbacks
-    tbCallBack = TensorBoardWrapper(
-        batch_gen=val_generator,
-        nb_steps=STEP_SIZE_VALID,
-        log_dir='../3_runs/logging/TBlogs/' + config_string,
-        histogram_freq=10,
-        batch_size=batch_size,
-        write_graph=True,
-        write_grads=False,
-        write_images=False,
-        embeddings_freq=0,
-        embeddings_layer_names=None,
-        embeddings_metadata=None,
-        embeddings_data=None,
-        update_freq='epoch',
-    )
-
-    model_checkpoint = ModelCheckpoint(
-        filepath='../3_runs/logging/checkpoints/' + config_string + '_{epoch:04d}-{val_loss:.2f}.hdf5',
-        verbose=1,
-        save_best_only=True,
-        mode='min',
-        period=1,
-    )
-
-    callbacks_list = [model_checkpoint, tbCallBack]
-
     if args.weights:
         model = model.load_weights(args.weights)
+
     else:
+        # callbacks
+        tbCallBack = TensorBoardWrapper(
+            batch_gen=val_generator,
+            nb_steps=STEP_SIZE_VALID,
+            log_dir='../3_runs/logging/TBlogs/' + config_string,
+            histogram_freq=10,
+            batch_size=batch_size,
+            write_graph=True,
+            write_grads=False,
+            write_images=False,
+            embeddings_freq=0,
+            embeddings_layer_names=None,
+            embeddings_metadata=None,
+            embeddings_data=None,
+            update_freq='epoch',
+        )
+
+        model_checkpoint = ModelCheckpoint(
+            filepath='../3_runs/logging/checkpoints/' + config_string + '_{epoch:04d}-{val_loss:.2f}.hdf5',
+            verbose=1,
+            save_best_only=True,
+            mode='min',
+            period=1,
+        )
+
+        callbacks_list = [model_checkpoint, tbCallBack]
+
         history = model.fit_generator(generator=train_generator,
                                       steps_per_epoch=STEP_SIZE_TRAIN,
                                       validation_data=val_generator,
