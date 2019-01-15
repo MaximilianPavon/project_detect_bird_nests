@@ -199,7 +199,7 @@ if __name__ == '__main__':
         plot_history(history, n_epochs, path='../3_runs/plots/')
 
     # evaluate the model
-    score = model.evaluate_generator(generator=val_generator, steps=STEP_SIZE_VALID)
+    score = model.evaluate_generator(generator=val_generator, steps=STEP_SIZE_VALID+1)
 
     # print loss and accuracy
     print('Val loss:', score[0])
@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
     # Predict the output
     test_generator.reset()
-    pred = model.predict_generator(test_generator, verbose=1, steps=STEP_SIZE_TEST)
+    pred = model.predict_generator(test_generator, verbose=1, steps=STEP_SIZE_TEST+1)
 
     predicted_class_indices = np.argmax(pred, axis=1)
 
